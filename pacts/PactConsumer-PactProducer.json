@@ -1,0 +1,117 @@
+{
+  "consumer": {
+    "name": "PactConsumer"
+  },
+  "messages": [
+    {
+      "contents": {
+        "color": "red",
+        "id": 1,
+        "price": 12345.67
+      },
+      "description": "a vehicle create event",
+      "matchingRules": {
+        "body": {
+          "$.color": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.id": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "number"
+              }
+            ]
+          },
+          "$.price": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "number"
+              }
+            ]
+          }
+        }
+      },
+      "metaData": {
+        "EventType": "CREATED"
+      }
+    },
+    {
+      "contents": {
+        "id": 1
+      },
+      "description": "a vehicle delete event",
+      "matchingRules": {
+        "body": {
+          "$.id": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "number"
+              }
+            ]
+          }
+        }
+      },
+      "metaData": {
+        "EventType": "DELETED"
+      }
+    },
+    {
+      "contents": {
+        "color": "green",
+        "id": 1,
+        "price": 12345.67
+      },
+      "description": "a vehicle update event",
+      "matchingRules": {
+        "body": {
+          "$.color": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.id": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "number"
+              }
+            ]
+          },
+          "$.price": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "number"
+              }
+            ]
+          }
+        }
+      },
+      "metaData": {
+        "EventType": "UPDATED"
+      }
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.2.6"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "PactProducer"
+  }
+}
