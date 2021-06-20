@@ -1,0 +1,87 @@
+= PACT contracts when using Apache Kafka
+
+A small sample setup of two applications communicating over Apacha Kafka, with contract testing using PACT.
+
+== Project layout
+
+The top level directory contains this README.adoc and a _docker-compose.yml_ file. There are two subdirectories _producer_ and _consumer_, both are Spring Boot Kotlin applications.
+
+According to the https://docs.pact.io/roadmap/feature_support/[PACT feature matrix] asynchronous message testing is
+supported in Javascript as well.
+
+== Start the applications
+
+To run all from the shell, you need 3 terminal windows
+
+=== Apacha Kafka
+
+In the first terminal, to start the Apache Kafka running in Docker:
+[source,shell]
+----
+docker compose up -d
+----
+You might need the older variant of
+[source,shell]
+----
+docker-compose up -d
+----
+
+This will start Kafka and a Kafka broker in docker and expose the standard ports. The docker processes are running in the background, we need this terminal later to send requests to the producer.
+
+=== Producer
+
+Use the second terminal window to start the producer:
+
+[source,shell]
+----
+cd producer
+./gradlew clean test bootRun
+----
+
+The producer application is a REST service managing `Vehicle` objects by keeping them in an in-memory map. A `Vehicle` has the following structure:
+[source,json]
+----
+{
+  id: number,
+  color: string,
+  price: number
+}
+----
+
+To create or update a vehicle, send a `POST` request to http://localhost:8080/vehicles with a body containg the vehicle data. To delete a vehicle, send a `DELETE` request to http://localhost:8080/vehicles/{id}
+
+To get all vehicles use `GET` http://localhost:8080/vehicles, to get a single on `GET` http://localhost:8080/vehicles/{id}.
+
+The producer will log these requests and send corresponding events into the Kafka _vehicles_ topic. An Event is a Kafka message with a header containing the event type (`CREATED`, `UPDATED` or `DELETED` and the body containing the `Vehicle` object.
+
+=== Consumer
+
+In a third terminal run:
+
+[source,shell]
+----
+cd consumer
+./gradlew clean test bootRun
+----
+
+This starts the consumer application. The consumer listens on the _vehicles_ Kafka topic and logs the received events to the terminal window.
+
+== PACT
+
+=== What does PACT do here?
+
+When building the consumer and running the tests, a PACT with the consumer's expectations is written to the _pacts_ directory.
+
+When building the producer and running the tests, this PACT is read and it is verified that the producer can fulfill it by sending all requested properties.
+
+=== What can be changed without breaking the PACT?
+
+* the consumer could remove a property from the event body, for example, the _price_ property. The producer can still send it
+* the producer could add a new property, for example `isConvertible` to the event body, the existing consumer would not be affected.
+
+=== What changes would break the PACT?
+
+* the consumer could add a new property that the producer does not provide
+* the producer could remove a property that a consumer requires.
+
+In these cases the `./gradlew test` task for the producer would fail.

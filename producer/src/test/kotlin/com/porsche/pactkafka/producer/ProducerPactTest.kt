@@ -1,7 +1,5 @@
 package com.porsche.pactkafka.producer
 
-import au.com.dius.pact.core.model.Interaction
-import au.com.dius.pact.core.model.Pact
 import au.com.dius.pact.provider.MessageAndMetadata
 import au.com.dius.pact.provider.PactVerifyProvider
 import au.com.dius.pact.provider.junit5.MessageTestTarget
@@ -27,10 +25,9 @@ class ProducerPactTest {
     private val template = mockk<KafkaTemplate<String, Vehicle>>()
     private val producer = Producer(template)
 
-
     @TestTemplate
     @ExtendWith(PactVerificationInvocationContextProvider::class)
-    fun testTemplate(pact: Pact, interaction: Interaction, context: PactVerificationContext) {
+    fun testTemplate(context: PactVerificationContext) {
         context.verifyInteraction()
     }
 
