@@ -50,16 +50,15 @@ class Producer(private val template: KafkaTemplate<String, Vehicle>) {
     }
 
     fun sendEvent(eventType: String, vehicle: Vehicle) {
-        template.send(buildMessage(eventType, vehicle))
+        template.send(
+            MessageBuilder
+                .withPayload(vehicle)
+                .setHeader(KafkaHeaders.TOPIC, "vehicles")
+                .setHeader("EventType", eventType.uppercase())
+                .build()
+        )
     }
 
-    internal fun buildMessage(eventType: String, vehicle: Vehicle) =
-        MessageBuilder
-            .withPayload(vehicle)
-            .setHeader(KafkaHeaders.TOPIC, "vehicles")
-            .setHeader("EventType", eventType.uppercase())
-            .build()
-    
     companion object {
         private val LOGGER = LoggerFactory.getLogger(Producer::class.java)
     }
